@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/jee
+           http://www.springframework.org/schema/jee/spring-jee.xsd
+       ">
+
+  <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+     <property name="connectionFactory" ref="jmsConnectionFactory"/>
+  </bean>
+
+  <bean id="listenerContainerA" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+     <property name="connectionFactory" ref="jmsConnectionFactory"/>
+     <property name="destination" ref="queueA"/>
+     <property name="messageListener" ref="forwarder"/>
+  </bean>
+
+  <bean id="listenerContainerB" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+     <property name="connectionFactory" ref="jmsConnectionFactory"/>
+     <property name="destination" ref="queueB"/>
+     <property name="messageListener" ref="receiver"/>
+  </bean>
+
+  <bean id="forwarder" class="com.tung.Forwarder">
+     <property name="destination" ref="queueB"/>
+     <property name="template" ref="jmsTemplate"/>
+  </bean>
+
+  <bean id="receiver" class="com.tung.Receiver">
+  </bean>
+
+  <jee:jndi-lookup id="jmsConnectionFactory" jndi-name="ConnectionFactory" />
+
+  <jee:jndi-lookup id="queueA" jndi-name="queue/A" />
+  <jee:jndi-lookup id="queueB" jndi-name="queue/B" />
+
+</beans>
